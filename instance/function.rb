@@ -1,18 +1,23 @@
 require_relative 'instance'
 class Instance::Function < Instance
-  attr_reader :token
+  attr_reader :func
 
-  def initialize(token:)
-    @token = token
+  def initialize(func:)
+    @func = func
   end
 
   def to_s
-    @token.to_s
+    @func.to_s
   end
 
 
-  def execute(args:, knowns:, stack:)
-    @token.execute(args: args, knowns: knowns, stack: stack)
+  def inspect
+    "#{self.class}( <func> )"
+  end
+
+
+  def execute(args:, knowns:)  
+    @func.call(*args.token_iter.clone_to_a, knowns: knowns)
   end
 
 end

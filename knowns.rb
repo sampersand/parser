@@ -1,11 +1,11 @@
 class Knowns < Hash
 
-  def set(token:, instance:)
-    self[token] = instance
+  def set(value:, instance:)
+    self[value] = instance
   end
 
-  def get(token:)
-    self[token]
+  def get(value:)
+    self[value]
   end
 
 end

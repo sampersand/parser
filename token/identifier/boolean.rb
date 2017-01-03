@@ -8,8 +8,8 @@ class Token::Identifier::Boolean < Token::Identifier
     super
   end
 
-  def to_instance(knowns:, stack:)
-    Instance::Identifier::Boolean.new(token: self)
+  def to_instance(knowns:)
+    Instance::Identifier::Boolean.new(value: @value)
   end
 
 end

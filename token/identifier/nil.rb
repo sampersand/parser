@@ -7,8 +7,8 @@ class Token::Identifier::Nil < Token::Identifier
     super(value: VALUE)
   end
 
-  def to_instance(knowns:, stack:)
-    Instance::Identifier::Nil.new(token: self)
+  def to_instance(knowns:)
+    Instance::Identifier::Nil.new(value: @value)
   end
 
   def inspect

@@ -1,5 +1,5 @@
-require_relative 'block'
-class Token::Keyword::Block::End < Token::Keyword::Block
+require_relative 'keyword'
+class Token::Keyword::End < Token::Keyword
   VALUE = :end
 end
 
