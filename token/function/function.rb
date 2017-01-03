@@ -1,4 +1,5 @@
 require 'token/token'
+require 'instance/function'
 class Token::Function < Token
   attr_reader :arity
 
@@ -12,6 +13,11 @@ class Token::Function < Token
   end
 
   def execute(args:, knowns:, stack:)
+    args = args.token_iter.clone_to_a
     @func.call(*args, knowns: knowns, stack: stack)
+  end
+
+  def to_instance(knowns:, stack:)
+    Instance::Function.new(token: self)
   end
 end

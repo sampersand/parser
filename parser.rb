@@ -35,20 +35,27 @@ module Parser
     loop {
       token = token_iter.next
       case token
-      when Token::Identifier
+      when Token::Function::Keyword::Functions::CallFunction
+        args = stack.pop
+        function = stack.pop
+        stack.push(instance: function.execute(args: args, knowns: knowns, stack: stack))
+      when Token::Identifier, Token::Function
         stack.push(instance: token.to_instance(stack: stack, knowns: knowns))
       when Token::Keyword::Block::Begin
         stack.push(instance: find_end(token_iter: token_iter))
-      when Token::Function
-        args = stack.pop(amnt: token.arity)
-        if args.length != token.arity
-          if token.is_a?(Token::Function::Keyword::Newline)
-            args = [nil]
-          else
-            raise ArgumentError.new("token `#{token}` got invalid args: #{args}")
-          end
-        end
-        stack.push(instance: token.execute(args: args, knowns: knowns, stack: stack))
+
+      # when Token::Function
+      #   args = stack.pop(amnt: token.arity)
+      #   if args.length != token.arity
+      #     if token.is_a?(Token::Function::Keyword::Newline)
+      #       args = [nil]
+      #     else
+      #       raise ArgumentError.new("token `#{token}` got invalid args: #{args}")
+      #     end
+      #   end
+      #   res = token.execute(args: args, knowns: knowns, stack: stack)
+      #   stack.push(instance: res)
+      #   # stack.push(instance: token.execute(args: args, knowns: knowns, stack: stack))
       else
         raise "Cannot deal with token: #{token.inspect}"
       end
@@ -70,11 +77,12 @@ if __FILE__ == $0
   require 'token/keyword/block/end'
   
   require 'token/function/keyword/functions/if'
-  require 'token/function/keyword/functions/disp'
-  require 'token/function/keyword/functions/disp'
+  require 'token/function/keyword/functions/display'
+  require 'token/function/keyword/functions/call_function'
 
 
   require 'token/function/operator/binary/assignment'
+  require 'token/function/operator/binary/attribute'
 
   require 'token/function/operator/binary/math/add'
   require 'token/function/operator/binary/math/mul'
@@ -87,66 +95,57 @@ if __FILE__ == $0
   require 'pp'
 
   body =  [
-    
-    Token::Identifier.new(value: :'func'),
+    Token::Function::Operator::Binary::Math::Add.new,
     Token::Keyword::Block::Begin.new,
-      Token::Identifier.new(value: :'x'),
-      Token::Keyword::Block::Begin.new,
-        Token::Identifier.new(value: :'y'),
-      Token::Keyword::Block::End.new,
-
-
-      # Token::Identifier.new(value: :'x'),
-      # Token::Identifier.new(value: :'3'),
-      # Token::Function::Operator::Binary::Math::Add.new,
+      Token::Identifier.new(value: :'4'),
+      Token::Identifier.new(value: :'2'),
     Token::Keyword::Block::End.new,
-    Token::Function::Operator::Binary::Assignment.new,
+    Token::Function::Keyword::Functions::CallFunction.new,
+    # Token::Identifier.new(value: :'x'),
+    # Token::Function::Keyword::Functions::Display.new,
+    
+
+    # Token::Identifier.new(value: :'array'),
+    # Token::Keyword::Block::Begin.new,
+    #     Token::Identifier.new(value: :'2'),
+    #     Token::Identifier.new(value: :'4'),
+    #     Token::Identifier.new(value: :'6'),
+    # Token::Keyword::Block::End.new,
+    # Token::Function::Operator::Binary::Assignment.new,
+
+    # Token::Identifier.new(value: :'length'),
+    # Token::Function::Operator::Binary::Attribute.new,
+    # Token::Keyword::Block::Begin.new,
+    # Token::Keyword::Block::End.new,
+    # Token::Function::Keyword::Functions::CallFunction.new,
+
+    
+    # Token::Identifier.new(value: :'func'),
+    # Token::Keyword::Block::Begin.new,
+    #   Token::Identifier.new(value: :'x'),
+    #   Token::Identifier.new(value: :'4'),
+    #   Token::Function::Operator::Binary::Math::Pow.new,
+    #   Token::Keyword::Block::Begin.new,
+    #     Token::Identifier.new(value: :'y'),
+    #   Token::Keyword::Block::End.new,
+    # Token::Keyword::Block::End.new,
+    # Token::Function::Keyword::Newline.new,
+
+    
+    # Token::Identifier.new(value: :'func'),
+    # Token::Keyword::Block::Begin.new,
+    #   Token::Identifier.new(value: :'x'),
+    #   Token::Identifier.new(value: :'3'),
+    #   Token::Function::Operator::Binary::Assignment.new,
+    # Token::Keyword::Block::End.new,
+    # Token::Function::Keyword::Functions::CallFunction.new
+    
   ]
-  token_iter = TokenIter.new(iterable: body.each)
-  result = Parser::parse_rpn(token_iter: token_iter)
+  result = Parser::parse_rpn(token_iter: TokenIter.new(iterable: body))
   new_knowns = Knowns.new
   new_knowns.set(token: Token::Identifier.new(value: :x),
                  instance: Instance::Identifier.new(token: Token::Identifier.new(value: :'9')))
-  pp result[:stack][-1].value_at(knowns: new_knowns)
-
-  # require 'pp'
-  # pp Parser::parse_rpn(tokens:
-  #   [      
-  #     Token::Identifier.new(value: :'x'),
-  #     Token::Identifier.new(value: :'4'),
-  #     Token::Identifier.new(value: :'9'),
-  #     Token::Function::Operator::Binary::Math::Add.new,
-  #     Token::Function::Operator::Binary::Assignment.new,
-
-  #     Token::Identifier.new(value: :'x'),
-  #     Token::Identifier.new(value: :'0'),
-  #     Token::Function::Operator::Binary::Comparison::LessThan.new,
-  #     Token::Identifier::Literal.new(value: :'x < 0'),
-  #     Token::Identifier::Literal.new(value: :'x >= 0'),
-  #     Token::Function::Keyword::If.new,
-  #     Token::Function::Keyword::Disp.new,
-
-  #     Token::Identifier.new(value: :'x'),
-  #     Token::Identifier.new(value: :'4'),
-  #     Token::Identifier::LastValue.new,
-  #     Token::Function::Operator::Binary::Pow.new,
-  #     Token::Function::Operator::Binary::Assignment.new,
-  #     Token::Keyword::Newline.new,
-
-  #     Token::Identifier.new(value: :'y'),
-  #     Token::Identifier.new(value: :'5'),
-  #     Token::Function::Operator::Binary::Assignment.new,
-  #     Token::Keyword::Newline.new,
-
-  #     Token::Identifier.new(value: :'z'),
-  #     Token::Identifier.new(value: :'x'),
-  #     Token::Identifier::LastValue.new,
-  #     # Token::Identifier.new(value: :'y'),
-  #     Token::Function::Operator::Binary::Add.new,
-  #     Token::Function::Operator::Binary::Assignment.new,
-  #     Token::Keyword::Newline.new,
-
-  #   ])
+  puts result[:stack].to_s
 end
 
 

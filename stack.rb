@@ -8,5 +8,7 @@ class Stack < Array
   def pop(amnt: nil)
     amnt ? super(amnt) : super()
   end
-
+  def to_s
+    "[#{join(', ')}]"
+  end
 end

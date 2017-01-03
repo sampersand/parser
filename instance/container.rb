@@ -8,7 +8,7 @@ class Instance::Container < Instance
   end
 
   def to_s
-    '<container>'
+    @token_iter.to_s
   end
 
   def inspect
@@ -16,7 +16,45 @@ class Instance::Container < Instance
   end
 
   def value_at(knowns:)
-    result = Parser::parse_rpn(token_iter: @token_iter, knowns: knowns.clone)
-    result[:stack].collect{ |t| t.value_at(knowns: knowns.clone) }
+    Instance::Container.new(token_iter: TokenIter.new(iterable: stack_at(knowns: knowns)))
   end
+
+  def execute_at(knowns:)
+    Parser::parse_rpn(token_iter: @token_iter, knowns: knowns.clone)
+  end
+
+  def stack_at(knowns:)
+    execute_at(knowns: knowns)[:stack]
+  end
+
+  def knowns_at(knowns:)
+    execute_at(knowns: knowns)[:knowns]
+  end
+
+  module Functions
+    extend Instance::Functions
+    module_function
+    def length(func)
+    end
+  end
+
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
