@@ -13,6 +13,22 @@ module Parser
   ArgumentError = Class.new(ArgumentError)
 
   module_function
+  def find_end(token_iter:)
+    arr = []
+    begans_found = 1
+    until begans_found <= 0
+      token = token_iter.next
+      if token.is_a?(Token::Keyword::Block::Begin)
+        begans_found += 1
+      elsif token.is_a?(Token::Keyword::Block::End)
+        begans_found -= 1
+      end
+      arr << token
+    end
+    arr.pop #last one will be the extra end
+    Instance::Container.new(token_iter: TokenIter.new(iterable: arr.each))
+  end
+
   def parse_rpn(token_iter:, knowns: nil, stack: nil)
     knowns ||= Knowns.new
     stack  ||= Stack.new
@@ -22,10 +38,7 @@ module Parser
       when Token::Identifier
         stack.push(instance: token.to_instance(stack: stack, knowns: knowns))
       when Token::Keyword::Block::Begin
-        arr = []
-        arr << token until (token = token_iter.next).is_a?(Token::Keyword::Block::End)
-        new_token_iter = TokenIter.new(iterable: arr.each)
-        stack.push(instance: Instance::Container.new(token_iter: new_token_iter))
+        stack.push(instance: find_end(token_iter: token_iter))
       when Token::Function
         args = stack.pop(amnt: token.arity)
         if args.length != token.arity
@@ -78,9 +91,9 @@ if __FILE__ == $0
     Token::Identifier.new(value: :'func'),
     Token::Keyword::Block::Begin.new,
       Token::Identifier.new(value: :'x'),
-      # Token::Keyword::Block::Begin.new,
+      Token::Keyword::Block::Begin.new,
         Token::Identifier.new(value: :'y'),
-      # Token::Keyword::Block::End.new,
+      Token::Keyword::Block::End.new,
 
 
       # Token::Identifier.new(value: :'x'),
