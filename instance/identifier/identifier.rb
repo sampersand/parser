@@ -98,7 +98,16 @@ class Instance::Identifier < Instance
 
   def value_at(knowns:)
     return knowns.get(token: @token).value_at(knowns: knowns) if knowns.include?(@token)
-    @token.value.to_s.to_f # this is hacky
+    begin
+      Float(@token.value.to_s) # this is hacky
+    rescue Exception => e
+      @token.value.to_s
+    end
   end
 
 end
+
+
+
+
+

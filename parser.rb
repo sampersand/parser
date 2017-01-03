@@ -13,20 +13,19 @@ module Parser
   ArgumentError = Class.new(ArgumentError)
 
   module_function
-  def parse_rpn(token_iter:)
-    knowns = Knowns.new
-    stack  = Stack.new(knowns: knowns)
+  def parse_rpn(token_iter:, knowns: nil, stack: nil)
+    knowns ||= Knowns.new
+    stack  ||= Stack.new
     loop {
       token = token_iter.next
       case token
       when Token::Identifier
-        stack.push(instance: token.to_instance(knowns: knowns), add_to_knowns: false)
+        stack.push(instance: token.to_instance(stack: stack, knowns: knowns))
       when Token::Keyword::Block::Begin
-        new_token_iter = []
-        new_token_iter << token until (token = token_iter.next).is_a?(Token::Keyword::Block::End)
-        knowns.push(instance:\
-            Instance::Container.new(token_iter:\
-                TokenIter.new(iterable: new_token_iter.each)))
+        arr = []
+        arr << token until (token = token_iter.next).is_a?(Token::Keyword::Block::End)
+        new_token_iter = TokenIter.new(iterable: arr.each)
+        stack.push(instance: Instance::Container.new(token_iter: new_token_iter))
       when Token::Function
         args = stack.pop(amnt: token.arity)
         if args.length != token.arity
@@ -36,16 +35,12 @@ module Parser
             raise ArgumentError.new("token `#{token}` got invalid args: #{args}")
           end
         end
-
-        result = token.execute(args: args, knowns: knowns)
-        knowns.push(instance: result) 
-        stack.push(instance: result)
+        stack.push(instance: token.execute(args: args, knowns: knowns, stack: stack))
       else
         raise "Cannot deal with token: #{token.inspect}"
       end
     }
-    knowns.push(instance: stack[-1]) unless stack.empty?
-    knowns
+    {knowns: knowns, stack: stack}
   end
 end
 
@@ -79,18 +74,28 @@ if __FILE__ == $0
   require 'pp'
 
   body =  [
+    
+    Token::Identifier.new(value: :'func'),
     Token::Keyword::Block::Begin.new,
       Token::Identifier.new(value: :'x'),
-      Token::Identifier.new(value: :'3'),
-      Token::Function::Operator::Binary::Math::Add.new,
+      # Token::Keyword::Block::Begin.new,
+        Token::Identifier.new(value: :'y'),
+      # Token::Keyword::Block::End.new,
+
+
+      # Token::Identifier.new(value: :'x'),
+      # Token::Identifier.new(value: :'3'),
+      # Token::Function::Operator::Binary::Math::Add.new,
     Token::Keyword::Block::End.new,
+    Token::Function::Operator::Binary::Assignment.new,
   ]
   token_iter = TokenIter.new(iterable: body.each)
   result = Parser::parse_rpn(token_iter: token_iter)
   new_knowns = Knowns.new
   new_knowns.set(token: Token::Identifier.new(value: :x),
-                 instance: Instance::Identifier.new(token: Token::Identifier.new(value: :'4')))
-  pp result.last_value.value_at(knowns: new_knowns)
+                 instance: Instance::Identifier.new(token: Token::Identifier.new(value: :'9')))
+  pp result[:stack][-1].value_at(knowns: new_knowns)
+
   # require 'pp'
   # pp Parser::parse_rpn(tokens:
   #   [      

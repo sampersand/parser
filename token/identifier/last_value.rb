@@ -5,8 +5,8 @@ class Token::Identifier::LastValue < Token::Identifier
     super(value: VALUE)
   end
 
-  def to_instance(knowns:)
-    Instance::Identifier.new(token: knowns.get(token: self).value_at(knowns: knowns))
+  def to_instance(knowns:, stack:)
+    stack[-1].to_instance(knowns: knowns, stack: stack)
   end
 
   def inspect

@@ -8,7 +8,7 @@ class Token::Identifier::Boolean < Token::Identifier
     super
   end
 
-  def to_instance(knowns:)
+  def to_instance(knowns:, stack:)
     Instance::Identifier::Boolean.new(token: self)
   end
 

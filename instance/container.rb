@@ -16,7 +16,7 @@ class Instance::Container < Instance
   end
 
   def value_at(knowns:)
-    return knowns.get(token: @token).value_at(knowns: knowns) if knowns.include?(@token)
-    Parser::parse_rpn(token_iter: @token_iter)
+    result = Parser::parse_rpn(token_iter: @token_iter, knowns: knowns.clone)
+    result[:stack].collect{ |t| t.value_at(knowns: knowns.clone) }
   end
 end
