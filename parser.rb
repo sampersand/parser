@@ -95,10 +95,15 @@ if __FILE__ == $0
   require 'pp'
 
   body =  [
-    Token::Function::Operator::Binary::Math::Add.new,
+    Token::Function::Operator::Binary::Math::Assignment.new,
     Token::Keyword::Block::Begin.new,
-      Token::Identifier.new(value: :'4'),
-      Token::Identifier.new(value: :'2'),
+      Token::Identifier.new(value: :'x'),
+      Token::Function::Operator::Binary::Math::Add.new,
+      Token::Keyword::Block::Begin.new,
+        Token::Identifier.new(value: :'4'),
+        Token::Identifier.new(value: :'2'),
+      Token::Keyword::Block::End.new,
+      Token::Function::Keyword::Functions::CallFunction.new,
     Token::Keyword::Block::End.new,
     Token::Function::Keyword::Functions::CallFunction.new,
     # Token::Identifier.new(value: :'x'),
@@ -145,7 +150,7 @@ if __FILE__ == $0
   new_knowns = Knowns.new
   new_knowns.set(token: Token::Identifier.new(value: :x),
                  instance: Instance::Identifier.new(token: Token::Identifier.new(value: :'9')))
-  puts result[:stack].to_s
+  pp result
 end
 
 
