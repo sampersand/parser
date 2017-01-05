@@ -31,12 +31,12 @@ class Container < Token
     @value.pop
   end
 
-  def unshift(value)
-    @value.unshift(value)
-  end
-
   def shift
     @value.shift
+  end
+
+  def unshift(value)
+    @value.unshift(value)
   end
 
   def delete_at(num)
@@ -55,7 +55,7 @@ class Container < Token
   end
 
   def +(other)
-    @value + other.to_a
+    Container.new(value: @value + other.to_a)
   end
 
 end

@@ -39,13 +39,14 @@ module Parser
     result = locals.class.new
     until locals.stack.empty?
       token = locals.stack.pop
-      p "new token: #{token}"
+      puts "new token: #{token}, #{result.stack}, #{locals.stack}"
       case token
       when Keyword
         case token
         when Keyword::Newline
           locals.pop
         when Keyword::CallFunction
+          p locals.stack
           args = locals.pop
           func_name = locals.pop
           function = locals[func_name]
@@ -56,7 +57,6 @@ module Parser
           args.each(&new_locals.method(:<<))
 
           function.call(locals: new_locals) || Identifier::Nil.new 
-          p [result.stack, new_locals.stack]
           result.update! new_locals
 
         else

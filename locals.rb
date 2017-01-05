@@ -27,13 +27,12 @@ class Locals
     @stack << token
   end
 
+  def shift
+    @stack.shift
+  end
+
   def pop
     @stack.pop
-  end
-  alias :pop_ult :pop
-
-  def pop_penult
-    @stack.delete_at(-2)
   end
 
   def clone_knowns
