@@ -5,7 +5,8 @@ class Keyword < Token
   CallFunction = Keyword.new(value: :call)
   Fetch = Keyword.new(value: :fetch)
   Newline = Keyword.new(value: :';')
-  Default = Keyword.new(value: :_)
+  Default = Keyword.new(value: :default)
+  Return = Keyword.new(value: :return)
  #  class LeftParen < Keyword
  #    DEFAULT_VALUE = :'('
  #  end

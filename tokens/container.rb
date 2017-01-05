@@ -64,7 +64,7 @@ class Container < Token
 
   def call(locals:, results:)
 
-    locals = locals.clone_knowns(stack: self )
+    locals = locals.clone_knowns(stack: self, transfer: false)
     results.update! locals.execute!
   end
 end

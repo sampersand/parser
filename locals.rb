@@ -38,10 +38,11 @@ class Locals
   end
 
 
-  def clone_knowns(stack: nil)
-    self.class.new(knowns: nil,
+  def clone_knowns(stack: nil, transfer: true)
+    self.class.new(knowns: !transfer && knowns.clone,
                    stack: stack.nil? ? nil : stack.clone,
-                   globals: @globals.clone.update(@knowns))
+                   globals: transfer ? @globals.clone.update(@knowns) : @globals.clone
+                   )
   end
 
   def global_tokens
@@ -69,8 +70,11 @@ class Locals
         case token
         when Keyword::Default
           results << token
+        when Keyword::Return
+          return results
         when Keyword::Newline
-          pop
+          p results.pop
+          p stack
         when Keyword::Fetch
           to_get = results.pop
           to_add = results[to_get]
