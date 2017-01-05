@@ -2,10 +2,9 @@ require_relative 'identifier'
 
 class Number < Identifier
   DEFAULT_VALUE = 0
-  ZERO = new
   def initialize(**k)
     super
-    @value = @value.to_s.to_i
+    @value = Float(@value.to_s)
   end
 
   def +(other)

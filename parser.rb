@@ -35,9 +35,11 @@ module Parser
   end
 
   def execute!(locals:)
+
     result = locals.class.new
     until locals.stack.empty?
       token = locals.stack.pop
+      p "new token: #{token}"
       case token
       when Keyword
         case token
@@ -45,17 +47,23 @@ module Parser
           locals.pop
         when Keyword::CallFunction
           args = locals.pop
-          function = locals.pop
+          func_name = locals.pop
+          function = locals[func_name]
 
+          raise "Unknown function `#{func_name.inspect}`" unless function
+          
           new_locals = locals.clone_knowns
           args.each(&new_locals.method(:<<))
 
-          result.update! function.call(locals: new_locals) || Identifier::Nil.new 
+          function.call(locals: new_locals) || Identifier::Nil.new 
+          p [result.stack, new_locals.stack]
+          result.update! new_locals
 
-        else fail token
+        else
+          fail token
         end
       else
-        result << token
+        result.stack.unshift(token)
       end
     end
     result
@@ -65,8 +73,6 @@ module Parser
   end
 
 end
-
-
 
 
 

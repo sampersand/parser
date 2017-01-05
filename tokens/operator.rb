@@ -1,19 +1,16 @@
 require_relative 'function'
 class Operator < Function
-  def func
-    proc do |locals:|
-      func = locals[@value]
-      raise NameError.new("No function named `#{@value}` found") unless func
-      func.call(locals: locals)
-    end
+  def initialize
+    super(func: self.class::DEFAULT_FUNCTION, value: self.class::DEFAULT_VALUE)
   end
+  
+  Add = proc { |locals:| locals << (locals.pop_penult || Number.new) + locals.pop_ult }
+  Sub = proc { |locals:| locals << (locals.pop_penult || Number.new) - locals.pop_ult }
+  Mul = proc { |locals:| locals << locals.pop_penult * locals.pop_ult }
+  Div = proc { |locals:| locals << locals.pop_penult / locals.pop_ult }
+  Pow = proc { |locals:| locals << locals.pop_penult ** locals.pop_ult }
+  Assign = proc { |locals:| locals[locals.pop_penult] = locals.pop_ult; locals }
 
-  class Add < Operator; DEFAULT_VALUE = :+ end
-  class Sub < Operator; DEFAULT_VALUE = :- end
-  class Mul < Operator; DEFAULT_VALUE = :* end
-  class Div < Operator; DEFAULT_VALUE = :/ end
-  class Pow < Operator; DEFAULT_VALUE = :** end
-  class Assign < Operator; DEFAULT_VALUE = :'=' end
 end
 
 

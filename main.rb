@@ -7,18 +7,32 @@ require 'pp'
 
 
 body =  [
-    Function.new(value: 2),
+    Identifier.new(value: :'='),
+    Identifier.new(value: :+),
     Keyword::Begin.new,
-      Number.new(value: 2),
+      Number.new(value: :'4'),
       Number.new(value: 3),
     Keyword::End.new,
     Keyword::CallFunction.new,
+
+
+    # Identifier.new(value: :'$get'),
+    # Keyword::Begin.new,
+    #   Identifier.new(value: :'x'),
+    # Keyword::End.new,
+    # Keyword::CallFunction.new,
+
 ]
 
 locals = Parser::create_containers(body: body)
+locals[Identifier.new(value: :'+') ] = Operator::Add
+locals[Identifier.new(value: :'=')] = Operator::Assign
+
 result = Parser::execute(locals: locals)
-p result.user_knowns
+
+
 p result.stack
+p result.pop
 
 
 

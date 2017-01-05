@@ -1,17 +1,13 @@
 require_relative 'token'
 class Function < Identifier
 
-  def initialize(func: nil, **k)
+  def initialize(func:, **k)
     super(**k)
-    @func = func # doesn't check for nil b/c operator makes its own func
-  end
-
-  def func
-    @func
+    @func = func
   end
 
   def call(locals:)
-    func.call(locals: locals)
+    @func.call(locals: locals)
   end
 
 end

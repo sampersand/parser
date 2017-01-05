@@ -11,6 +11,8 @@ class Token
     (self.class == other.class) && (value == other.value)
   end
 
+  alias :eql? :==
+
   def inspect
     "#{self.class}( #{inspect_value} )"
   end
@@ -18,8 +20,13 @@ class Token
   def to_s
     @value.to_s
   end
+
   def inspect_value
     @value.inspect
+  end
+
+  def hash
+    @value.hash
   end
 
 end

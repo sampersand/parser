@@ -1,32 +1,39 @@
 require_relative 'tokens/container'
 
 class Locals
-  BUILT_INS = :'$builtins'
-
   attr_reader :knowns
   attr_reader :stack
 
   def initialize(knowns: nil, stack: nil)
-    @knowns = knowns || default_knowns
+    @knowns = knowns || default_locals
     @stack = stack || Container.new
   end
 
-  def user_knowns
-    @knowns.reject{ |key| key == BUILT_INS }
+  def default_locals
+    {
+      # :'$get' => Keyword.get
+    }
   end
 
   def [](key)
-    return @knowns[BUILT_INS] if key == BUILT_INS
-    @knowns[key] || @knowns[BUILT_INS][key]
+    @knowns[key]
   end
+
   def []=(key, token)
     @knowns[key] = token
   end
+
   def <<(token)
     @stack << token
   end
+
   def pop
     @stack.pop
+  end
+  alias :pop_ult :pop
+
+  def pop_penult
+    @stack.delete_at(-2)
   end
 
   def clone_knowns
@@ -37,31 +44,13 @@ class Locals
     "#{self.class}(#{knowns}, #{stack})"
   end
 
-  def delete_at(pos)
-    @stack.delete_at(pos)
-  end
-
   def update!(other)
     fail(other.class.to_s) unless other.is_a?(self.class)
     @knowns.update(other.knowns)
     @stack += other.stack
   end
 
-  def default_knowns #this might want to be added somewhere else...
-    new_locals = {}
-    new_locals[BUILT_INS] = { 
-      :+    => proc { |locals:| locals.delete_at(-2) +  locals.pop                },
-      :-    => proc { |locals:| locals.delete_at(-2) -  locals.pop                },
-      :*    => proc { |locals:| locals.delete_at(-2) *  locals.pop                },
-      :/    => proc { |locals:| locals.delete_at(-2) /  locals.pop                },
-      :**   => proc { |locals:| locals.delete_at(-2) ** locals.pop                },
-      :'='  => proc { |locals:| locals[locals.delete_at(-2)] = locals.pop; locals },
-    }
-    new_locals
-  end
-
 end
-
 
 
 
