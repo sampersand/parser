@@ -6,25 +6,52 @@ require_relative 'tokens/number'
 require 'pp'
 
 
+def get(val)
+  [
+      Identifier.new(value: val),
+      Keyword::Get.new,
+  ]
+end
 body =  [
-    Identifier.new(value: :'='),
-    Identifier.new(value: :+),
+
+    *get(:'='),
     Keyword::Begin.new,
-      Number.new(value: 4),
-      Number.new(value: 3),
+      Identifier.new(value: :foo),
+      Keyword::Begin.new,
+
+        *get(:**),
+        Keyword::Begin.new,
+          *get(:'x'),
+          Number.new(value: :'4'),
+        Keyword::End.new,
+        Keyword::CallFunction.new,
+
+      Keyword::End.new,
     Keyword::End.new,
     Keyword::CallFunction.new,
-    Identifier.new(value: :-),
+
+    *get(:'foo'),
     Keyword::Begin.new,
-      Number.new(value: 5),
-      Number.new(value: 3),
+
+      *get(:'='),
+      Keyword::Begin.new,
+        Identifier.new(value: :x),
+        Number.new(value: :'3'),
+      Keyword::End.new,
+      Keyword::CallFunction.new,
+
     Keyword::End.new,
     Keyword::CallFunction.new,
 
 
-    # Identifier.new(value: :'$get'),
+    # Identifier.new(value: :'='),
     # Keyword::Begin.new,
-    #   Identifier.new(value: :'x'),
+    #   Identifier.new(value: :'y'),
+    #   Identifier.new(value: :'$get'),
+    #   Keyword::Begin.new,
+    #     Identifier.new(value: :'x'),
+    #   Keyword::End.new,
+    #   Keyword::CallFunction.new,
     # Keyword::End.new,
     # Keyword::CallFunction.new,
 
@@ -33,14 +60,14 @@ body =  [
 locals = Parser::create_containers(body: body)
 locals[Identifier.new(value: :-) ] = Operator::Sub
 locals[Identifier.new(value: :+) ] = Operator::Add
-locals[Identifier.new(value: :*) ] = Operator::Mul
+locals[Identifier.new(value: :/) ] = Operator::Div
 locals[Identifier.new(value: :'=')] = Operator::Assign
 
-result = Parser::execute(locals: locals)
-
-
-p result.stack
-p result.pop
+result = locals.execute
+puts locals
+puts "knowns: #{result.token_knowns}"
+puts "stack: #{result.stack}"
+puts "last: #{result[-1]}"
 
 
 

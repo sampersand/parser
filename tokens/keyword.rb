@@ -13,6 +13,10 @@ class Keyword < Token
     DEFAULT_VALUE = :call_function
   end
 
+ class Get < CallFunction
+    DEFAULT_VALUE = :get
+  end
+
   class Newline < Keyword
     DEFAULT_VALUE = :";"
   end

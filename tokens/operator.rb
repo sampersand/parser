@@ -4,12 +4,12 @@ class Operator < Function
     super(func: self.class::DEFAULT_FUNCTION, value: self.class::DEFAULT_VALUE)
   end
   
-  Add = proc { |locals:| locals << locals.shift + locals.shift}
-  Sub = proc { |locals:| locals << locals.shift - locals.shift}
-  Mul = proc { |locals:| locals << locals.shift * locals.shift}
-  Div = proc { |locals:| locals << locals.shift / locals.shift}
-  Pow = proc { |locals:| locals << locals.shift ** locals.shift}
-  Assign = proc { |locals:| locals[locals.shift] = locals.shift; locals }
+  Add = proc { |locals:, result:| result << locals.stack[-2] +  locals.stack[-1] }
+  Sub = proc { |locals:, result:| result << locals.stack[-2] -  locals.stack[-1] }
+  Mul = proc { |locals:, result:| result << locals.stack[-2] *  locals.stack[-1] }
+  Div = proc { |locals:, result:| result << locals.stack[-2] /  locals.stack[-1] }
+  Pow = proc { |locals:, result:| result << locals.stack[-2] ** locals.stack[-1] }
+  Assign = proc { |locals:, result:| result[locals.stack[-2]] = locals.stack[-1] }
 
 end
 

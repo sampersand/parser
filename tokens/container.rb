@@ -58,4 +58,28 @@ class Container < Token
     Container.new(value: @value + other.to_a)
   end
 
+  def call(locals:, result:)
+    locals = locals.clone_knowns(stack: self)
+    locals.execute!
+    exit
+  end
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
