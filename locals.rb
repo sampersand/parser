@@ -39,15 +39,9 @@ class Locals
 
 
   def clone_knowns(stack: nil)
-    self.class.new(knowns: nil, #@knowns.clone,
+    self.class.new(knowns: nil,
                    stack: stack.nil? ? nil : stack.clone,
                    globals: @globals.clone.update(@knowns))
-  end
-
-  def clone_globals(knowns: nil, stack: nil)
-    self.class.new(knowns: knowns.nil? ? nil : knowns.clone,
-                   stack: stack.nil? ? nil : stack.clone,
-                   globals: @globals.clone)
   end
 
   def global_tokens
@@ -73,13 +67,14 @@ class Locals
       case token
       when Keyword
         case token
+        when Keyword::Default
+          results << token
         when Keyword::Newline
           pop
-
-        when Keyword::Get
+        when Keyword::Fetch
           to_get = results.pop
           to_add = results[to_get]
-          raise "Unknown local: #{to_get}" unless to_add
+          raise "Unknown variable: `#{to_get}`" unless to_add
           results << to_add
 
         when Keyword::CallFunction
@@ -87,16 +82,13 @@ class Locals
           func = results.pop
 
           new_locals = results.clone_knowns(stack: args)
-          puts "b4 new_locals: #{new_locals}"
           new_locals = new_locals.execute!
-          puts "l8 new_locals: #{new_locals}"
-
           func.call(locals: new_locals, results: results)
         else
-          fail token
+          fail token.inspect
         end
       else
-        results.stack << token
+        results << token
       end
     end
     results

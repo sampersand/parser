@@ -7,46 +7,49 @@ require_relative 'tokens/number'
 require 'pp'
 
 
-def num(val); Number.new(value: val) end
-def id(val); Identifier.new(value: val) end
+def num(val) Number.new(value: val) end
+def id(val) Identifier.new(value: val) end
 
-def get; Keyword::Get.new end
-def l; Keyword::LeftParen.new end
-def r; Keyword::RightParen.new end
-def call; Keyword::CallFunction.new end
+def fetch; Keyword::Fetch end
+def get(id) [id, fetch] end
+def l; Keyword::LeftParen end
+def r; Keyword::RightParen end
+def call; Keyword::CallFunction end
+def default; Keyword::Default end
 
-def set_simp(a, b) [id(:'='), get, l, a, b, r, call] end
+def arr(*body)
+  [l, *body, r]
+end
+
+def run_id(id, *args)
+  [
+    *get(id),
+    *arr(
+      *args,
+    ), call
+  ]
+end
+def set(id, *value)
+  run_id(:'=', id, *value)
+end
+
 
 body =  [
-  :'=', get,
-  l,
-    :x,
-    num(3),
-  r, call,
+  *set(:whilst,
+    *arr(
+      *run_id(:switch,
+        *run_id(:cmp, *get(:x), num(10)),
+        *arr(
+          *set(:<, *arr(
+            *run_id( :disp, *get(:x) ),
+            *run_id(:whilst, *set(:x, *run_id(:+, *get(:x), num(1)))))),
+          *set(default, *arr),
+        )
+      ),
+      *arr(:y,), call,
+    )),
 
-  l,
-    :'disp', get,
-    l, :x, get, r, call,
-    :'+', get,
-    l,
-      :x, get,
-      num(2),
-    r, call,
-  r,
-  l,
-    :'=', get,
-    l,
-      :'x',
-      :+, get,
-      l,
-        :'x', get,
-        num(4),
-      r, call,
-    r, call,
-  r, call,
-  :'disp', get,
-  l, :x, get,
-  r, call,
+  *run_id(:whilst,  *set(:x, num(0)))
 ].collect{ |e| e.is_a?(Symbol) ? id(e) : e }
 
 # x = 1

@@ -9,13 +9,13 @@ module Parser
   module_function
   def find_end(body_iter)
     arr = []
-    until (arr << body_iter.next)[-1].is_a?(Keyword::RightParen)
-      if arr[-1].is_a?(Keyword::LeftParen)
+    until (arr << body_iter.next)[-1].equal? Keyword::RightParen
+      if arr[-1].equal? Keyword::LeftParen
         arr.pop #remove the begin
         arr << find_end(body_iter)
       end
     end
-    fail unless arr.pop.is_a?(Keyword::RightParen)
+    fail unless arr.pop.equal? Keyword::RightParen
     Container.new(value: arr)
   end
 

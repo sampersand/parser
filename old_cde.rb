@@ -104,3 +104,43 @@
     r, call,
   r, call,
 ]
+
+
+
+[
+ :'=', get,
+  l,
+    :x,
+    num(3),
+  r, call,
+
+  l,
+    :'disp', get,
+    l,
+      :+, get,
+      l, 
+        :'x is: ',
+        :x, get,
+      r, call,
+    r, call,
+    :'+', get,
+    l,
+      :x, get,
+      num(2),
+    r, call,
+  r,
+  l,
+    :'=', get,
+    l,
+      :'x',
+      :+, get,
+      l,
+        :'x', get,
+        num(4),
+      r, call,
+    r, call,
+  r, call,
+  :'disp', get,
+  l, :x, get,
+  r, call,
+]

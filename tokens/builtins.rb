@@ -9,7 +9,7 @@ module Builtins
     switch_on = locals.pop
     cases_results = results.clone_knowns
     cases.call(locals: locals.clone_knowns, results: cases_results)
-    chosen_case = cases_results[switch_on]
+    chosen_case = cases_results[switch_on] || cases_results[ Keyword::Default ]
     results << chosen_case
   }
       # Identifier.new(value: :'$index') => proc { |locals:, results:|
