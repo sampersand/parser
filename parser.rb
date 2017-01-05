@@ -7,7 +7,7 @@ module Parser
   require_relative 'tokens/container'
 
   module_function
-  def find_end(body_iter:)
+  def find_end(body_iter)
     arr = []
     until (arr << body_iter.next)[-1].is_a?(Keyword::End)
       if arr[-1].is_a?(Keyword::Begin)
@@ -26,17 +26,18 @@ module Parser
       token = body_iter.next
       case token
       when Keyword::Begin
-        locals.push(find_end(body_iter: body_iter))
+        locals << find_end(body_iter)
       else
-        locals.push(token)
+        locals << token
       end
     end
     locals
   end
 
-  def execute(locals:)
+  def execute!(locals:)
     result = locals.class.new
-    locals.stack.each do |token|
+    until locals.stack.empty?
+      token = locals.stack.pop
       case token
       when Keyword
         case token
@@ -45,22 +46,25 @@ module Parser
         when Keyword::CallFunction
           args = locals.pop
           function = locals.pop
+
           new_locals = locals.clone_knowns
-          new_locals.push_all(args)
-          result_value = function.call(locals: new_locals)
-          result_value ||= Identifier::Nil.new
-          result.push(result_value)
+          args.each(&new_locals.method(:<<))
+
+          result.update! function.call(locals: new_locals) || Identifier::Nil.new 
+
         else fail token
         end
       else
-        result.push(token)
+        result << token
       end
     end
     result
   end
+  def execute(locals: )
+    execute!(locals: locals.clone)
+  end
+
 end
-
-
 
 
 

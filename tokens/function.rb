@@ -1,8 +1,8 @@
 require_relative 'token'
 class Function < Identifier
 
-  def initialize(func: nil, **args)
-    super(**args)
+  def initialize(func: nil, **k)
+    super(**k)
     @func = func # doesn't check for nil b/c operator makes its own func
   end
 
