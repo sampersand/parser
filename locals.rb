@@ -1,24 +1,3 @@
-class Object
-  def deep_clone
-    return @deep_cloning_obj if @deep_cloning
-    @deep_cloning_obj = clone
-    @deep_cloning_obj.instance_variables.each do |var|
-      val = @deep_cloning_obj.instance_variable_get(var)
-      begin
-        @deep_cloning = true
-        val = val.deep_clone
-      rescue TypeError
-        next
-      ensure
-        @deep_cloning = false
-      end
-      @deep_cloning_obj.instance_variable_set(var, val)
-    end
-    deep_cloning_obj = @deep_cloning_obj
-    @deep_cloning_obj = nil
-    deep_cloning_obj
-  end
-end
 
 require_relative 'tokens/container'
 
@@ -33,10 +12,24 @@ class Locals
 
   def default_locals
     {
-      # Identifier.new(value: :'$get') => proc { |locals:, result:| result << locals[locals.pop] }
+      Identifier.new(value: :'$disp') => proc { |locals:, result:|
+        p locals.pop
+      },
+      Identifier.new(value: :'$index') => proc { |locals:, result:|
+        # puts locals.stack[-2].value
+        p locals.stack[-2]
+        result << locals.pop[locals.pop]
+      },
+      Identifier.new(value: :'$case') => proc { |locals:, result:|
+        cases = result.class.new
+        locals.pop.call(locals: result.clone_knowns, result: cases)
+        chosen_case = cases[locals.pop]
+        puts "chosen case: #{chosen_case.inspect}"
+        result << chosen_case
+      }
     }
   end
-
+#hi from dad
   def [](key)
     @knowns[key]
   end
@@ -63,7 +56,7 @@ class Locals
 
 
   def clone_knowns(stack: nil)
-    self.class.new(knowns: @knowns.deep_clone, stack: stack.nil? ? nil : stack.deep_clone)
+    self.class.new(knowns: @knowns, stack: stack.nil? ? nil : stack)
   end
 
   def token_knowns
@@ -92,18 +85,17 @@ class Locals
 
         when Keyword::Get
           to_get = result.pop
-          result << result[to_get]
+          to_add = result[to_get]
+          raise "Unknown local: #{to_get}" unless to_add
+          result << to_add
 
         when Keyword::CallFunction
-
           args = result.pop
-          func = .pop
+          func = result.pop
 
           new_locals = result.clone_knowns(stack: args)
           new_locals = new_locals.execute!
-          puts "args: #{args}, result: #{result}"
           func.call(locals: new_locals, result: result)
-
         else
           fail token
         end
@@ -112,10 +104,6 @@ class Locals
       end
     end
     result
-  end
-
-  def execute
-    deep_clone.execute!
   end
 
 end

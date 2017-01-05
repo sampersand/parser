@@ -1,12 +1,12 @@
 require_relative 'token'
 class Keyword < Token  
 
-  class Begin < Keyword
-    DEFAULT_VALUE = :begin
+  class LeftParen < Keyword
+    DEFAULT_VALUE = :'('
   end
 
-  class End < Keyword
-    DEFAULT_VALUE = :end
+  class RightParen < Keyword
+    DEFAULT_VALUE = :')'
   end
 
   class CallFunction < Keyword

@@ -60,8 +60,7 @@ class Container < Token
 
   def call(locals:, result:)
     locals = locals.clone_knowns(stack: self)
-    locals.execute!
-    exit
+    result.update! locals.execute!
   end
 end
 
