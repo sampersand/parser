@@ -1,0 +1,106 @@
+[
+  :'=', get,
+  l,
+    :x,
+    :true,
+  r,
+  call,
+
+  :'disp', get,
+  l,
+    :'switch', get,
+    l,
+      :x, get,
+      l,
+        :'=', get,
+        l,
+          :true,
+          l, :"it's true!", r,
+        r,
+        call,
+
+        :'=', get,
+        l,
+          :false,
+          l, :"it's false!", r,
+        r,
+        call,
+      r,
+    r,
+    call,
+  r,
+  call,
+]
+
+
+
+[
+  :switch, get,
+  l,
+    :cmp, get,
+    l,
+      num(2),
+      num(3),
+    r, call,
+
+    l,
+      :'=', get,
+      l,
+        :<,
+        :a,
+      r, call,
+    r,
+
+  r, call,
+
+]
+
+[
+  :'=', get,
+  l,
+    :whilst,
+    l,
+
+      :switch, get,
+      l,
+        :cmp, get,
+        l,
+          :x, get,
+          num(10),
+        r, call,
+
+        l,
+          :'=', get,
+          l, 
+            :<,
+            l,
+              :disp, get,
+              l,
+                :x, get,
+              r, call,
+            r,
+          r, call,
+
+          :'=', get,
+          l, 
+            :==,
+            :'',
+          r, call,
+        r,
+
+      r, call,
+      l,
+        :y,
+      r, call,
+    r,
+  r, call,
+
+  :whilst, get,
+  l,
+    :'=', get,
+    l,
+      :x,
+      num(9),
+    r, call,
+  r, call,
+]

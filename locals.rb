@@ -3,35 +3,18 @@ require_relative 'tokens/container'
 
 class Locals
   attr_reader :knowns
+  attr_reader :globals
   attr_reader :stack
 
-  def initialize(knowns: nil, stack: nil)
-    @knowns = knowns || default_locals
+  def initialize(knowns: nil, stack: nil, globals: nil)
+    @knowns = knowns || {}
+    @globals = globals || {}
     @stack = stack || Container.new
   end
 
-  def default_locals
-    {
-      Identifier.new(value: :'$disp') => proc { |locals:, result:|
-        p locals.pop
-      },
-      Identifier.new(value: :'$index') => proc { |locals:, result:|
-        # puts locals.stack[-2].value
-        p locals.stack[-2]
-        result << locals.pop[locals.pop]
-      },
-      Identifier.new(value: :'$case') => proc { |locals:, result:|
-        cases = result.class.new
-        locals.pop.call(locals: result.clone_knowns, result: cases)
-        chosen_case = cases[locals.pop]
-        puts "chosen case: #{chosen_case.inspect}"
-        result << chosen_case
-      }
-    }
-  end
 #hi from dad
   def [](key)
-    @knowns[key]
+    @knowns[key] || @globals[key]
   end
 
   def []=(key, token)
@@ -56,15 +39,25 @@ class Locals
 
 
   def clone_knowns(stack: nil)
-    self.class.new(knowns: @knowns, stack: stack.nil? ? nil : stack)
+    self.class.new(knowns: nil, #@knowns.clone,
+                   stack: stack.nil? ? nil : stack.clone,
+                   globals: @globals.clone.update(@knowns))
   end
 
-  def token_knowns
-    @knowns.select{ |_, value| value.is_a?(Token) }
+  def clone_globals(knowns: nil, stack: nil)
+    self.class.new(knowns: knowns.nil? ? nil : knowns.clone,
+                   stack: stack.nil? ? nil : stack.clone,
+                   globals: @globals.clone)
+  end
+
+  def global_tokens
+    @globals.select{ |_, value| value.is_a?(Token) }
   end
 
   def to_s
-    "#{self.class}({#{token_knowns.collect{ |k, v| "#{k}: #{v}"}.join(', ') }}, #{stack})"
+    "#{self.class}(\n\tstack:\n\t\t#{@stack}" + 
+    "\n\tknowns:\n\t\t{#{@knowns.collect{ |k, v| "#{k}: #{v}"}.join(', ') }}" +
+    "\n\tglobals:\n\t\t{#{global_tokens.collect{ |k, v| "#{k}: #{v}"}.join(', ') }}\n\t)"
   end
 
   def update!(other)
@@ -74,7 +67,7 @@ class Locals
   end
 
   def execute!
-    result = clone_knowns
+    results = clone_knowns
     until stack.empty?
       token = shift
       case token
@@ -84,27 +77,49 @@ class Locals
           pop
 
         when Keyword::Get
-          to_get = result.pop
-          to_add = result[to_get]
+          to_get = results.pop
+          to_add = results[to_get]
           raise "Unknown local: #{to_get}" unless to_add
-          result << to_add
+          results << to_add
 
         when Keyword::CallFunction
-          args = result.pop
-          func = result.pop
+          args = results.pop
+          func = results.pop
 
-          new_locals = result.clone_knowns(stack: args)
+          new_locals = results.clone_knowns(stack: args)
+          puts "b4 new_locals: #{new_locals}"
           new_locals = new_locals.execute!
-          func.call(locals: new_locals, result: result)
+          puts "l8 new_locals: #{new_locals}"
+
+          func.call(locals: new_locals, results: results)
         else
           fail token
         end
       else
-        result.stack << token
+        results.stack << token
       end
     end
-    result
+    results
   end
 
+  def get_binding
+    b = binding
+    global_tokens.each do |k, v|
+      b.local_variable_set(k.value, v.value)
+    end
+    knowns.each do |k, v|
+      b.local_variable_set(k.value, v.value)
+    end
+    b
+  end
 end
+
+
+
+
+
+
+
+
+
 

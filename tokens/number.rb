@@ -27,4 +27,12 @@ class Number < Identifier
     self.class.new(value: value ** other.value)
   end
 
+  def <=>(other)
+    Identifier.new(value: case (value <=> other.value)
+                          when -1 then :<
+                          when 0 then :==
+                          when 1 then :>
+                          else :'?'
+                          end)
+  end
 end
