@@ -31,22 +31,30 @@ end
 def set(id, *value)
   run_id(:'=', id, *value)
 end
-def disp(stmnt) run_id(:disp)
+def disp(*body) run_id(:disp, *body) end
 body =  [
-  *set(:x, num(0)),
-
-  # *run_id(:if, 
-
-  # ),
-  *get(:if),
+  # *set(:car, *[
+  #    *set(:tires, num(0)),
+  # ]),
+  :'=',
+  FETCH,
   LEFT,
-    *run_id(:<, num(2), num(3)),
+    :car,
     LEFT,
-      *disp(:'< 3'),
+      :'=',
+      FETCH,
+      LEFT,
+        :tires,
+        0,
+      RIGHT,
+      CALL,
     RIGHT,
   RIGHT,
   CALL,
-].collect{ |e| e.is_a?(Symbol) ? id(e) : e }
+  *disp(*get(:car))
+
+].collect{ |e| e.is_a?(Symbol)  ? id(e)  : e }.
+  collect{ |e| e.is_a?(Numeric) ? num(e) : e }
 
 # x = 1
 
@@ -67,9 +75,6 @@ locals.globals[Identifier.new(value: :+)  ] = Operator::Add
 locals.globals[Identifier.new(value: :'=')] = Operator::Assign
 locals.globals[Identifier.new(value: :'cmp')] = Operator::Compare
 
-locals.globals[Identifier.new(value: :print_locals)] = proc { |locals:, results:| 
-  puts results
-}
 locals.globals[Identifier.new(value: :disp)]   = Builtins::Display
 locals.globals[Identifier.new(value: :switch)] = Builtins::Switch
 locals.globals[Identifier.new(value: :if)] = Builtins::If
@@ -78,6 +83,12 @@ results = locals.execute!
 puts '-------'
 # puts "locals: #{locals}\n\n"
 puts "results: #{results}"
+
+
+
+
+
+
 
 
 
