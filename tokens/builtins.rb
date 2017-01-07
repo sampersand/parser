@@ -30,5 +30,24 @@ module Builtins
     res = eval(to_eval.to_s, results.get_binding)
     results << (res.is_a?(Token) ? res : Identifier.new(value: res) )
   }
-
+  If = proc{ |locals:, results:| 
+    puts locals
+    exit
+  }
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

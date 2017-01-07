@@ -31,36 +31,21 @@ end
 def set(id, *value)
   run_id(:'=', id, *value)
 end
-
+def disp(stmnt) run_id(:disp)
 body =  [
-  *set(:foo, *arr(
-      *run_id(:switch,
-        *run_id(:cmp, *get(:x), num(10)),
-        *arr(
-          *set(:<, *arr(num(10), RETURN)),
-        )),
-      *arr, CALL,
-      1
-  )),
-  *run_id(:foo, *set(:x, num(5)))
-  # *set(:whilst,
-  #   *arr(
-  #     *run_id(:switch,
-  #       *run_id(:cmp, *get(:x), num(10)),
-  #       *arr(
-  #         *set(:<, *arr(
-  #           *run_id( :disp, *get(:x) ),
-  #           *run_id(:whilst, *set(:x, *run_id(:+, *get(:x), num(1)))),
-  #           # NEWLINE,
-  #           )),
-  #         *set(DEFAULT, *arr),
-  #       )
-  #     ),
-  #     *arr, CALL,
-  #     *get(:x),
-  #   )),
+  *set(:x, num(0)),
 
-  # *run_id(:whilst,  *set(:x, num(0)))
+  # *run_id(:if, 
+
+  # ),
+  *get(:if),
+  LEFT,
+    *run_id(:<, num(2), num(3)),
+    LEFT,
+      *disp(:'< 3'),
+    RIGHT,
+  RIGHT,
+  CALL,
 ].collect{ |e| e.is_a?(Symbol) ? id(e) : e }
 
 # x = 1
@@ -78,15 +63,16 @@ locals.globals[Identifier.new(value: :+)  ] = Operator::Add
 # locals.globals[Identifier.new(value: :-)  ] = Operator::Sub
 # locals.globals[Identifier.new(value: :*)  ] = Operator::Mul
 # locals.globals[Identifier.new(value: :/)  ] = Operator::Div
-locals.globals[Identifier.new(value: :**) ] = Operator::Pow
+# locals.globals[Identifier.new(value: :**) ] = Operator::Pow
 locals.globals[Identifier.new(value: :'=')] = Operator::Assign
 locals.globals[Identifier.new(value: :'cmp')] = Operator::Compare
 
 locals.globals[Identifier.new(value: :print_locals)] = proc { |locals:, results:| 
-  # puts results
+  puts results
 }
 locals.globals[Identifier.new(value: :disp)]   = Builtins::Display
 locals.globals[Identifier.new(value: :switch)] = Builtins::Switch
+locals.globals[Identifier.new(value: :if)] = Builtins::If
 # locals.globals[Identifier.new(value: :rb)]    = Builtins::RubyCode
 results = locals.execute!
 puts '-------'

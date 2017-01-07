@@ -1,3 +1,4 @@
+exit
 [
   :'=', get,
   l,
@@ -143,4 +144,24 @@
   :'disp', get,
   l, :x, get,
   r, call,
+]
+
+[
+  *set(:whilst,
+    *arr(
+      *run_id(:switch,
+        *run_id(:cmp, *get(:x), num(10)),
+        *arr(
+          *set(:<, *arr(
+            *run_id( :disp, *get(:x) ),
+            *run_id(:whilst, *set(:x, *run_id(:+, *get(:x), num(1)))),
+            )),
+          *set(DEFAULT, *arr),
+        )
+      ),
+      *arr, CALL,
+      *get(:x),
+    )),
+
+  *run_id(:whilst,  *set(:x, num(0)))
 ]
